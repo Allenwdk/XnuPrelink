@@ -314,7 +314,12 @@ class Matcher:
                 if index + 1 < len(anchors) and anchors[index + 1] - target < 0x10000 and \
                         pairs[anchors[index + 1]] - ref != anchors[index + 1] - target:
                     continue
-            if reference.section_of(ref).split(',')[1] != self.original.section_of(target).split(',')[1]:
+            # A reference built with another kernel configuration can report '?' for an anchor address
+            # (no containing section); such an anchor cannot name reference data.
+            reference_section = reference.section_of(ref)
+            original_section = self.original.section_of(target)
+            if ',' not in reference_section or ',' not in original_section or \
+                    reference_section.split(',')[1] != original_section.split(',')[1]:
                 continue
             name, addend = reference.name_at(ref)
             if name is None or addend not in (0, 16) or (addend and not name.startswith('__ZTV')):
