@@ -822,6 +822,13 @@
       "original_sha256": "674e883a6e9fda056c87d90fb525ca7b782299f82ddcb2275d0d5a605e52bf82",
       "native_symbol": "__ZN10IOReporter12updateReportEP19IOReportChannelListjPvS2_",
       "evidence": "Member: takes _reporterLock (+0x80) with interrupts disabled, stores the interrupt state at +0x78, sets _reporterIsLocked (+0x48), calls the virtual handleUpdateReport, clears the flag and unlocks. Source: IOReporter.cpp updateReport (lockReporter/handleUpdateReport/unlockReporter inlined)."
+    },
+    {
+      "original": "0xfffffe000b55c3e8",
+      "original_size": 400,
+      "original_sha256": "588972dc20d14f7f6a39608807f7559fa46881b00926f9552a1b15b5719f3997",
+      "native_symbol": "_kprintf",
+      "evidence": "Tests the two pexpert flags disable_serial_output and disable_kprintf_output, disables interrupts with ml_set_interrupts_enabled, takes kprintf_lock with simple_lock_try, compares cpu_number() with the static cpu_last_locked, then passes PE_kputc and radix 16 to _doprnt_log. Source: pexpert/arm/pe_kprintf.c kprintf. The shape matcher misses it because the original loads PE_kputc with an autia/paciza pair while the native kernel loads it straight into x2; the called format string at runtime is corecrypto_kext_start's banner. Runtime evidence: a corecrypto call at 0xfffffff00ac7245c went through the corecrypto trampoline at 0xac81940 (table slot 0xfffffff0084ac948) to this old address and hit unixnu_fileset_unmapped with x0 pointing at 'corecrypto_kext_start (tracing disabled)'."
     }
   ],
   "data": [
