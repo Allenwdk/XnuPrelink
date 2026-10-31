@@ -829,6 +829,34 @@
       "original_sha256": "588972dc20d14f7f6a39608807f7559fa46881b00926f9552a1b15b5719f3997",
       "native_symbol": "_kprintf",
       "evidence": "Tests the two pexpert flags disable_serial_output and disable_kprintf_output, disables interrupts with ml_set_interrupts_enabled, takes kprintf_lock with simple_lock_try, compares cpu_number() with the static cpu_last_locked, then passes PE_kputc and radix 16 to _doprnt_log. Source: pexpert/arm/pe_kprintf.c kprintf. The shape matcher misses it because the original loads PE_kputc with an autia/paciza pair while the native kernel loads it straight into x2; the called format string at runtime is corecrypto_kext_start's banner. Runtime evidence: a corecrypto call at 0xfffffff00ac7245c went through the corecrypto trampoline at 0xac81940 (table slot 0xfffffff0084ac948) to this old address and hit unixnu_fileset_unmapped with x0 pointing at 'corecrypto_kext_start (tracing disabled)'."
+    },
+    {
+      "original": "0xfffffe000b5ac7d0",
+      "original_size": 168,
+      "original_sha256": "39b88939af73a485c4cbee95f92c93bcf1d2e97e27d3cca6704c52a25b76f9a1",
+      "native_symbol": "_memset",
+      "evidence": "Broadcasts the low byte of x1 with a 0x0101010101010101 multiply and stores 64-byte stp blocks (tail path below 64 bytes), the same masked instruction sequence as the native _memset. Source: osfmk/arm64/bzero.s. The shape matcher misses it because the old and new assembly differ only in tail scheduling; kexts call it directly, so the stub would fire on the first kext memset."
+    },
+    {
+      "original": "0xfffffe000aecef24",
+      "original_size": 48,
+      "original_sha256": "abb7c19ec8e64fd9442b0ac63d517c44dd947f80781419e9cf943ce14161035b",
+      "native_symbol": "_ml_get_timebase",
+      "evidence": "Reads the CPU timebase pair through tpidr_el1 (old +0x1b8, native +0x238), rereads until the pair is stable, then returns the counter plus the base. Identical shape to the native ml_get_timebase. Source: osfmk/arm64/machine_routines.c:2531."
+    },
+    {
+      "original": "0xfffffe000aecf474",
+      "original_size": 64,
+      "original_sha256": "3deef3394fd57f999083f3f699ad0a1d9728e75ea2feaf2242196d630b9a83ad",
+      "native_symbol": "_absolutetime_to_nanoseconds",
+      "evidence": "Divides the absolutetime argument by the timebase numer from kernel __DATA, multiplies by 1000000000, stores the quotient and the corrected remainder sum through the output pointer. Identical shape to the native symbol. Source: osfmk/arm/rtclock.c:475."
+    },
+    {
+      "original": "0xfffffe000aecf034",
+      "original_size": 24,
+      "original_sha256": "9c11b138bb41e70a82b56473a1b2c71fc4c9cf3dd87b1233ccc4df8312741cf1",
+      "native_symbol": "_clock_timebase_info",
+      "evidence": "Loads the second qword of the kernel timebase pair from __DATA and stores it through x0. Identical shape to the native clock_timebase_info. Source: osfmk/arm/rtclock.c:314."
     }
   ],
   "data": [
