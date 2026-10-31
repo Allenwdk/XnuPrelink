@@ -892,6 +892,13 @@
       "original_sha256": "5502b04d1c521a1afc67b669680b0a1d9d386dd00b81120c93f889c6fa60d807",
       "native_symbol": "_lck_mtx_try_lock",
       "evidence": "lck_mtx_try_lock fastpath: casa the owner word at lock+8 with the CPU's current thread id (tpidr_el1 +0x4f8 in the release kernel) and return whether it was free (cmp/cset eq); no slow path, no prologue. Native _lck_mtx_try_lock (0xfffffff007376504) has the same casa fastpath; the native DEVELOPMENT kernel additionally ORs in the LK_MTX debug global, which the RELEASE kernel folds away. Called from corecrypto 0xac5aedc with a PAC-authenticated lock and branching on the result, i.e. CC_LOCK_TRYLOCK (cc/corecrypto/cc_lock.h). Trampoline slot 0xfffffe00084ac970 (thunk 0xac81990)."
+    },
+    {
+      "original": "0xfffffe000b42b4a0",
+      "original_size": 52,
+      "original_sha256": "a0a8e9d8176fe091eab91a8138c37b34dbe1df609c14d3f6763dd1397a91d88",
+      "native_symbol": "_register_crypto_functions",
+      "evidence": "register_crypto_functions(funcs): loads the g_crypto_funcs pointer; if already non-NULL returns -1, otherwise stores funcs and sets crypto_init = 1 (two adjacent globals, pointer then byte). Source: libkern/crypto/register_crypto.c. Native _register_crypto_functions (0xfffffff007ac9838) compiles to the same five instructions (ldr/cbz/-1/ret, then str + strb + ret). Runtime: corecrypto_kext_start fills its crypto_functions table (the pacia stores before the call), then calls this through trampoline slot 0xfffffe00084ac9e8 (thunk 0xac81a80) at 0xfffffff00ac726e8; the run panicked with return address 0xfffffff00ac726ec."
     }
   ],
   "data": [
