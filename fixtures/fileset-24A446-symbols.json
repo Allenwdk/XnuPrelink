@@ -878,6 +878,20 @@
       "original_sha256": "1506b0c579eb5cf919936bbaaa78c2041c48a8e837da6e07f322c6969d682daa",
       "native_symbol": "_IOFreeData",
       "evidence": "IOFreeData(address,size): NULL-checks the address, passes the same data-heap zone descriptor (0xfffffe0007f08e00), address and size to the 3-argument kfree helper, then subtracts size from the ledger at 0xfffffe000b92ab40. Source: iokit/Kernel/IOLib.cpp IOFreeData -> IOFree_internal(KHEAP_DATA_PRIVATE, address, size); native IOFreeData (0xfffffff007ae1cfc) has the same shape (mov x2,x1; mov x1,x0; zone; b IOFree_internal). Corecrypto cc_memory.c cc_free calls this trampoline (slot 0xfffffe00084ac900 / thunk 0xac818b0)."
+    },
+    {
+      "original": "0xfffffe000ad43134",
+      "original_size": 112,
+      "original_sha256": "62d425c1fccab767eb13ef76099c6b47a5492d511eb1b0bfe1a847c1becce662",
+      "native_symbol": "_lck_mtx_alloc_init",
+      "evidence": "lck_mtx_alloc_init(grp, attr): allocates from the KT_LCK_MTX zone, then writes the same header lck_mtx_init writes (LCK_TYPE_MUTEX 0x22000000 with the group attribute id bfxil'd from grp+4, zero owner/tail) into the new lock, increments grp->lck_grp_mtxcnt with ldadd at grp+0x10 and references the group. Source: osfmk/kern/lock_mtx.c:253; native _lck_mtx_alloc_init (0xfffffff007376100) = zalloc(KT_LCK_MTX) + inline lck_mtx_init. Runtime: corecrypto cc/src/cc_lock.c cc_lock_init calls lck_grp_alloc_init then lck_mtx_alloc_init; this is trampoline slot 0xfffffe00084ac958 (thunk 0xac81960)."
+    },
+    {
+      "original": "0xfffffe000ad43db4",
+      "original_size": 36,
+      "original_sha256": "5502b04d1c521a1afc67b669680b0a1d9d386dd00b81120c93f889c6fa60d807",
+      "native_symbol": "_lck_mtx_try_lock",
+      "evidence": "lck_mtx_try_lock fastpath: casa the owner word at lock+8 with the CPU's current thread id (tpidr_el1 +0x4f8 in the release kernel) and return whether it was free (cmp/cset eq); no slow path, no prologue. Native _lck_mtx_try_lock (0xfffffff007376504) has the same casa fastpath; the native DEVELOPMENT kernel additionally ORs in the LK_MTX debug global, which the RELEASE kernel folds away. Called from corecrypto 0xac5aedc with a PAC-authenticated lock and branching on the result, i.e. CC_LOCK_TRYLOCK (cc/corecrypto/cc_lock.h). Trampoline slot 0xfffffe00084ac970 (thunk 0xac81990)."
     }
   ],
   "data": [
