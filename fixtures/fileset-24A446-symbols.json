@@ -864,6 +864,20 @@
       "original_sha256": "51587541746d1694460996a6e7d74690e449aa8379f1d7c46b8f272a0ee02d30",
       "native_symbol": "_panic_active",
       "evidence": "Loads a 32-bit kernel __DATA global and returns (value - DBOP_PANIC) < 2, i.e. value is DBOP_PANIC(3) or DBOP_DEBUGGER(4) (osfmk/kern/debug.h, debugger_op). Its two callers are corecrypto's cc_malloc/cc_free (cc/src/cc_memory.c: if (panic_active()) use the 4 KiB panic_scratch_buffer, else pmap_in_ppl()/IOMallocData), reached from the trampoline table at 0xfffffff0084ac8f8 slot 24 (0xac81a20) and slot 25. Runtime evidence: a call with x0=0x518 (a 1304-byte FIPS-test allocation) panicked in unixnu_fileset_unmapped from 0xfffffff00ac208a0. Native _panic_active compiles to the same ldr/sub/cmp/cset shape without the leading bti (it starts at an 8-byte boundary). Source: osfmk/kern/debug.c panic_active."
+    },
+    {
+      "original": "0xfffffe000b441a24",
+      "original_size": 76,
+      "original_sha256": "af74cbaa7ac507d0ac260b84cb61dbb41b325c3259f8fb2c4858b953681c7d67",
+      "native_symbol": "_IOMallocData",
+      "evidence": "IOMallocData(size): zalloc-free one-argument wrapper that passes the fixed data-heap zone descriptor (0xfffffe0007f08e00), the size and flags 0x31000 to the 4-argument kalloc helper, then adds the size to the allocator ledger at 0xfffffe000b92ab40. Its sibling with flags 0x31004 (the 0x4 zero bit) is IOMallocZeroData, and the second zone descriptor 0xfffffe0007ecbda8 marks the *Shareable variants; this one matches IOMallocData. Source: iokit/Kernel/IOLib.cpp IOMallocData -> __IOMalloc_internal(KHEAP_DATA_PRIVATE, size, Z_WAITOK); native IOMallocData (0xfffffff007ae1cac) passes the same heap descriptor to IOMalloc_internal. Runtime: corecrypto cc_memory.c cc_malloc calls this trampoline (slot 0xfffffe00084ac908 / thunk 0xac818c0) after panic_active with the FIPS-test size 0x518; the first call after boot went through the stub at 0xfffffff00ac20900."
+    },
+    {
+      "original": "0xfffffe000b441b54",
+      "original_size": 80,
+      "original_sha256": "1506b0c579eb5cf919936bbaaa78c2041c48a8e837da6e07f322c6969d682daa",
+      "native_symbol": "_IOFreeData",
+      "evidence": "IOFreeData(address,size): NULL-checks the address, passes the same data-heap zone descriptor (0xfffffe0007f08e00), address and size to the 3-argument kfree helper, then subtracts size from the ledger at 0xfffffe000b92ab40. Source: iokit/Kernel/IOLib.cpp IOFreeData -> IOFree_internal(KHEAP_DATA_PRIVATE, address, size); native IOFreeData (0xfffffff007ae1cfc) has the same shape (mov x2,x1; mov x1,x0; zone; b IOFree_internal). Corecrypto cc_memory.c cc_free calls this trampoline (slot 0xfffffe00084ac900 / thunk 0xac818b0)."
     }
   ],
   "data": [
