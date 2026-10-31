@@ -896,7 +896,7 @@
     {
       "original": "0xfffffe000b42b4a0",
       "original_size": 52,
-      "original_sha256": "a0a8e9d8176fe091eab91a8138c37b34dbe1df609c14d3f6763dd1397a91d88",
+      "original_sha256": "a0a8e9d8176fe091eab91a813c8a37b34dbe1df609c14d3f6763dd1397a91d88",
       "native_symbol": "_register_crypto_functions",
       "evidence": "register_crypto_functions(funcs): loads the g_crypto_funcs pointer; if already non-NULL returns -1, otherwise stores funcs and sets crypto_init = 1 (two adjacent globals, pointer then byte). Source: libkern/crypto/register_crypto.c. Native _register_crypto_functions (0xfffffff007ac9838) compiles to the same five instructions (ldr/cbz/-1/ret, then str + strb + ret). Runtime: corecrypto_kext_start fills its crypto_functions table (the pacia stores before the call), then calls this through trampoline slot 0xfffffe00084ac9e8 (thunk 0xac81a80) at 0xfffffff00ac726e8; the run panicked with return address 0xfffffff00ac726ec."
     }
