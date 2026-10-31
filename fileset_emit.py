@@ -577,6 +577,8 @@ class Emit:
         struct.pack_into('<II', self.data, at + 16, len(rebuilt), len(payload))
         flags, = struct.unpack_from('<I', self.data, at + 24)
         struct.pack_into('<I', self.data, at + 24, flags | MH_DYLIB_IN_CACHE)
+        # Keep the member's CPU subtype word equal to the collection root's (see fileset_segmented.py).
+        struct.pack_into('<I', self.data, at + 8, struct.unpack_from('<I', self.data, 8)[0])
 
     def patch_headers(self):
         """Repoint the kernel entry, add native segments, grow linkedit, move the entry PC."""

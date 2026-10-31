@@ -283,6 +283,10 @@ class SegmentedEmit(Emit):
         struct.pack_into('<II', self.data, self.fileoff+16, len(rebuilt), len(commands))
         flags, = struct.unpack_from('<I', self.data, self.fileoff+24)
         struct.pack_into('<I', self.data, self.fileoff+24, flags | MH_DYLIB_IN_CACHE)
+        # The collection's root header and its kernel member must carry the same CPU subtype word: Apple's
+        # kernelcache names arm64e with the kernel ptrauth ABI bits (0xc0000002), a clang-built kernel has
+        # 0x80000002, and DarwinBoot rejects a fileset whose member word differs from the root's.
+        struct.pack_into('<I', self.data, self.fileoff+8, struct.unpack_from('<I', self.data, 8)[0])
         # corecrypto authenticates the relocated __text bytes in a fileset.
         code = next(s for s in self.native.sections if s['segment'] == '__TEXT_EXEC' and s['name'] == '__text')
         seals = [s for s in self.native.sections if s['name'] == '__fips_hmacs']
