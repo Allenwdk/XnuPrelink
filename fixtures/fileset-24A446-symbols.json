@@ -899,6 +899,13 @@
       "original_sha256": "a0a8e9d8176fe091eab91a813c8a37b34dbe1df609c14d3f6763dd1397a91d88",
       "native_symbol": "_register_crypto_functions",
       "evidence": "register_crypto_functions(funcs): loads the g_crypto_funcs pointer; if already non-NULL returns -1, otherwise stores funcs and sets crypto_init = 1 (two adjacent globals, pointer then byte). Source: libkern/crypto/register_crypto.c. Native _register_crypto_functions (0xfffffff007ac9838) compiles to the same five instructions (ldr/cbz/-1/ret, then str + strb + ret). Runtime: corecrypto_kext_start fills its crypto_functions table (the pacia stores before the call), then calls this through trampoline slot 0xfffffe00084ac9e8 (thunk 0xac81a80) at 0xfffffff00ac726e8; the run panicked with return address 0xfffffff00ac726ec."
+    },
+    {
+      "original": "0xfffffe000b5a15dc",
+      "original_size": 616,
+      "original_sha256": "d7b3d888799428b3f7e98ed050563a8d0f626b1d02495a40702f7aff934609fe",
+      "native_symbol": "_register_and_init_prng",
+      "evidence": "register_and_init_prng(ctx, funcs) from osfmk/prng/prng_random.c: allocates a 0x40-byte lock group named 'prng', stores ctx into the prng_ready global, then authenticates/re-signs each of the six PRNG function pointers (funcs->init/initgen/reseed/refresh/generate/init_with_getentropy) into the prng_funcs globals with the same six PAC diversities (0x6961, 0xf60a, 0x5d01, 0x4d5f, 0xedeb, 0x3051) and their global addresses as discriminators. Native _register_and_init_prng (0xfffffff00755d04c) has the identical prologue (sub sp,#0x40; stp x22,x21,[sp,#0x10]; stp x20,x19,[sp,#0x20]; stp x29,x30,[sp,#0x30]; add x29,sp,#0x30; mov x19,x1; mov x20,x0) and the same diversity sequence. Runtime: corecrypto_kext_start calls it right after register_crypto_functions; the run panicked with return address 0xfffffff00ac727a4, i.e. the instruction after the bl at 0xfffffff00ac727a0 (trampoline slot 0xfffffe00084ac9e0 / thunk 0xac81a70)."
     }
   ],
   "data": [
