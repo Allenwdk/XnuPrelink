@@ -906,6 +906,13 @@
       "original_sha256": "d7b3d888799428b3f7e98ed050563a8d0f626b1d02495a40702f7aff934609fe",
       "native_symbol": "_register_and_init_prng",
       "evidence": "register_and_init_prng(ctx, funcs) from osfmk/prng/prng_random.c: allocates a 0x40-byte lock group named 'prng', stores ctx into the prng_ready global, then authenticates/re-signs each of the six PRNG function pointers (funcs->init/initgen/reseed/refresh/generate/init_with_getentropy) into the prng_funcs globals with the same six PAC diversities (0x6961, 0xf60a, 0x5d01, 0x4d5f, 0xedeb, 0x3051) and their global addresses as discriminators. Native _register_and_init_prng (0xfffffff00755d04c) has the identical prologue (sub sp,#0x40; stp x22,x21,[sp,#0x10]; stp x20,x19,[sp,#0x20]; stp x29,x30,[sp,#0x30]; add x29,sp,#0x30; mov x19,x1; mov x20,x0) and the same diversity sequence. Runtime: corecrypto_kext_start calls it right after register_crypto_functions; the run panicked with return address 0xfffffff00ac727a4, i.e. the instruction after the bl at 0xfffffff00ac727a0 (trampoline slot 0xfffffe00084ac9e0 / thunk 0xac81a70)."
+    },
+    {
+      "original": "0xfffffe000ae9bd20",
+      "original_size": 168,
+      "original_sha256": "fb6d09879e717fcd3e1bb7172a627551c45234750a586c1197a7f3ba74572b9b",
+      "native_symbol": "_read_random",
+      "evidence": "read_random(buffer, numBytes) from osfmk/prng/prng_random.c: calls prng_funcs.refresh(prng_ctx) with PAC diversity 0x4d5f and the refresh slot at prng_funcs+0x18, then generates through read_random_generate in 0x100-byte chunks with the generate slot (diversity 0xedeb). No prng_ready check, which distinguishes it from read_frandom (that one tests the ready byte first and does not refresh). Native _read_random (0xfffffff00755d400) has the identical refresh call (movk x17,#0x4d5f; blraa), the same prng_ctx load and the same 0x100 chunk loop. Runtime: corecrypto's entropy-provide wrapper calls it through trampoline slot 0xfffffe00084ac9d8 (thunk 0xac81a60) from 0xfffffff00ac4b7b0."
     }
   ],
   "data": [
