@@ -913,6 +913,13 @@
       "original_sha256": "fb6d09879e717fcd3e1bb7172a627551c45234750a586c1197a7f3ba74572b9b",
       "native_symbol": "_read_random",
       "evidence": "read_random(buffer, numBytes) from osfmk/prng/prng_random.c: calls prng_funcs.refresh(prng_ctx) with PAC diversity 0x4d5f and the refresh slot at prng_funcs+0x18, then generates through read_random_generate in 0x100-byte chunks with the generate slot (diversity 0xedeb). No prng_ready check, which distinguishes it from read_frandom (that one tests the ready byte first and does not refresh). Native _read_random (0xfffffff00755d400) has the identical refresh call (movk x17,#0x4d5f; blraa), the same prng_ctx load and the same 0x100 chunk loop. Runtime: corecrypto's entropy-provide wrapper calls it through trampoline slot 0xfffffe00084ac9d8 (thunk 0xac81a60) from 0xfffffff00ac4b7b0."
+    },
+    {
+      "original": "0xfffffe000b4424c4",
+      "original_size": 16,
+      "original_sha256": "b113410a1cd6adc823c24b2b23af585cd9c7ccbcec8e9219693fa20f7c417cc8",
+      "native_symbol": "_IOLockAlloc",
+      "evidence": "IOLockAlloc(void): 16-byte wrapper bti c; adrp x8, gIOKit lock group (0xfffffe000b929330); ldr x0,[x8,#0x330]; b _lck_mtx_alloc_init (already reviewed-bound). Native _IOLockAlloc (0xfffffff007ae279c) loads the same group global and tail-calls _lck_mtx_alloc_init with x1=0 (source: iokit/Kernel/IOLib.cpp IOLockAlloc -> lck_mtx_alloc_init(gIOLockGroup, LCK_ATTR_NULL)). Runtime: IOCryptoAcceleratorFamily's boot-time lock allocation called it through the fixup slot 0xfffffe0008313b60 / thunk 0xa0ab660; the first call after boot went through the stub at 0xfffffff00b611a50 (panic from 0xfffffff00a0aac38)."
     }
   ],
   "data": [
