@@ -857,6 +857,13 @@
       "original_sha256": "9c11b138bb41e70a82b56473a1b2c71fc4c9cf3dd87b1233ccc4df8312741cf1",
       "native_symbol": "_clock_timebase_info",
       "evidence": "Loads the second qword of the kernel timebase pair from __DATA and stores it through x0. Identical shape to the native clock_timebase_info. Source: osfmk/arm/rtclock.c:314."
+    },
+    {
+      "original": "0xfffffe000acfc7dc",
+      "original_size": 28,
+      "original_sha256": "51587541746d1694460996a6e7d74690e449aa8379f1d7c46b8f272a0ee02d30",
+      "native_symbol": "_panic_active",
+      "evidence": "Loads a 32-bit kernel __DATA global and returns (value - DBOP_PANIC) < 2, i.e. value is DBOP_PANIC(3) or DBOP_DEBUGGER(4) (osfmk/kern/debug.h, debugger_op). Its two callers are corecrypto's cc_malloc/cc_free (cc/src/cc_memory.c: if (panic_active()) use the 4 KiB panic_scratch_buffer, else pmap_in_ppl()/IOMallocData), reached from the trampoline table at 0xfffffff0084ac8f8 slot 24 (0xac81a20) and slot 25. Runtime evidence: a call with x0=0x518 (a 1304-byte FIPS-test allocation) panicked in unixnu_fileset_unmapped from 0xfffffff00ac208a0. Native _panic_active compiles to the same ldr/sub/cmp/cset shape without the leading bti (it starts at an 8-byte boundary). Source: osfmk/kern/debug.c panic_active."
     }
   ],
   "data": [
