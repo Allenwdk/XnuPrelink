@@ -55,3 +55,11 @@ the output as `native-only`; payload arguments and loader support are separate.
 The lower-level `fileset_emit.py` accepts `--map FILE`, `--output FILE`,
 `--report FILE` and repeated `--root BUNDLE_ID` arguments. Run host regressions
 with `python3 -m unittest discover -p 'test_*.py'`.
+
+
+On the 24A446 bring-up path, `fileset-unmapped-call.patch` reports the stripped
+return address as `from`, not the unresolved target address. Inspect the preceding
+call and its authenticated thunk slot before adding a reviewed fixture. The
+`_strprefix` anchor identifies the 40-byte original (BTI plus the byte-identical
+36-byte native body); this binding is host verified, with device qualification
+recorded separately by the consuming board.

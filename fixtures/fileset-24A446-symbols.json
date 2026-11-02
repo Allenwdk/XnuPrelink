@@ -920,6 +920,13 @@
       "original_sha256": "b113410a1cd6adc823c24b2b23af585cd9c7ccbcec8e9219693fa20f7c417cc8",
       "native_symbol": "_IOLockAlloc",
       "evidence": "IOLockAlloc(void): 16-byte wrapper bti c; adrp x8, gIOKit lock group (0xfffffe000b929330); ldr x0,[x8,#0x330]; b _lck_mtx_alloc_init (already reviewed-bound). Native _IOLockAlloc (0xfffffff007ae279c) loads the same group global and tail-calls _lck_mtx_alloc_init with x1=0 (source: iokit/Kernel/IOLib.cpp IOLockAlloc -> lck_mtx_alloc_init(gIOLockGroup, LCK_ATTR_NULL)). Runtime: IOCryptoAcceleratorFamily's boot-time lock allocation called it through the fixup slot 0xfffffe0008313b60 / thunk 0xa0ab660; the first call after boot went through the stub at 0xfffffff00b611a50 (panic from 0xfffffff00a0aac38)."
+    },
+    {
+      "original": "0xfffffe000ae8254c",
+      "original_size": 40,
+      "original_sha256": "8af8e336c9f47462aa6495b0238ecdb9e747287fde579fe65723b2f531389515",
+      "native_symbol": "_strprefix",
+      "evidence": "24A446 AppleImage4 call return address 0xfffffff009019bd8 follows BL to thunk 0xfffffff00903a908; authenticated slot 0xfffffe00080e1a78 resolves to this original function. User x0 points to com.apple.security.AppleImage4 and x1 to com.apple.security.; body returns 1 iff s2 is a prefix of s1. The original is BTI c followed by a byte-for-byte identical copy of native _strprefix (36 bytes); only the BTI landing instruction differs. Source osfmk/device/subrs.c strprefix_impl; paired source ABI is int(const char *,const char *). Hardware panic reported, repaired binding not device verified."
     }
   ],
   "data": [
