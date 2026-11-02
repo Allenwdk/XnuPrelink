@@ -7,7 +7,7 @@ import struct
 from fileset_emit import (Emit, ChainReader, decode, chain_word, PAGE, MASK64,
                           LC_SEGMENT_64, LC_SYMTAB, LC_DYLD_CHAINED_FIXUPS,
                           LC_FILESET_ENTRY, LC_UNIXTHREAD, MH_DYLIB_IN_CACHE)
-from fileset_layout import Layout, relocate_native, encode_uleb, align
+from fileset_layout import Layout, relocate_native, relocate_original_stubs, encode_uleb, align
 from kc_image import Image, scan, signed
 from fileset_emit import inline_data_ranges, inside
 
@@ -59,6 +59,8 @@ class SegmentedEmit(Emit):
 
     def rewrite_native_chains(self):
         self.native_pointers, counts = relocate_native(self.data, self.layout)
+        self.original_branches = relocate_original_stubs(self.data, self.layout)
+        self.report['native_original_branches_rebound'] = len(self.original_branches)
         self.report['native_split_relocations'] = dict(counts)
         self.report['native_chain_sites'] = len(self.native_pointers)
 
@@ -283,9 +285,7 @@ class SegmentedEmit(Emit):
         struct.pack_into('<II', self.data, self.fileoff+16, len(rebuilt), len(commands))
         flags, = struct.unpack_from('<I', self.data, self.fileoff+24)
         struct.pack_into('<I', self.data, self.fileoff+24, flags | MH_DYLIB_IN_CACHE)
-        # The collection's root header and its kernel member must carry the same CPU subtype word: Apple's
-        # kernelcache names arm64e with the kernel ptrauth ABI bits (0xc0000002), a clang-built kernel has
-        # 0x80000002, and DarwinBoot rejects a fileset whose member word differs from the root's.
+        # Preserve the loader's root/member CPU subtype contract on uke.
         struct.pack_into('<I', self.data, self.fileoff+8, struct.unpack_from('<I', self.data, 8)[0])
         # corecrypto authenticates the relocated __text bytes in a fileset.
         code = next(s for s in self.native.sections if s['segment'] == '__TEXT_EXEC' and s['name'] == '__text')

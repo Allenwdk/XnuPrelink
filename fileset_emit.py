@@ -577,7 +577,7 @@ class Emit:
         struct.pack_into('<II', self.data, at + 16, len(rebuilt), len(payload))
         flags, = struct.unpack_from('<I', self.data, at + 24)
         struct.pack_into('<I', self.data, at + 24, flags | MH_DYLIB_IN_CACHE)
-        # Keep the member's CPU subtype word equal to the collection root's (see fileset_segmented.py).
+        # uke's DarwinBoot validates the root/member CPU subtype words exactly.
         struct.pack_into('<I', self.data, at + 8, struct.unpack_from('<I', self.data, 8)[0])
 
     def patch_headers(self):
@@ -724,6 +724,7 @@ def emit_images(raw, native_data, payload, roots, stub_symbol=None, early_securi
         'closure': sorted(closure) if closure is not None else None,
         'collection_base': hex(cache.base), 'collection_slide': hex(collection_slide),
         'native_link_address': hex(native.base), 'statistics': dict(emit.report),
+        'native_original_branches': emit.original_branches,
         'missing': {owner: {hex(target): count for target, count in sorted(targets.items())}
                     for owner, targets in sorted(emit.missing.items())},
         'stubbed': {owner: {hex(target): count for target, count in sorted(targets.items())}
