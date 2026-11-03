@@ -35,6 +35,15 @@ def vtable_slots(side, base):
     return []  # unterminated, so no proven table extent
 
 
+def owns_method(table, method):
+    """Check the C++ owning class, not a class mentioned in parameters."""
+    cls = table.removeprefix('__ZTV')
+    if cls.startswith('N') and cls.endswith('E'):
+        cls = cls[1:-1]
+    return any(method.startswith('__ZN' + qualifiers + cls)
+               for qualifiers in ('', 'K', 'V', 'VK', 'KV'))
+
+
 class Side:
     """Functions, references and pointer fixups of one kernel."""
 
@@ -882,7 +891,7 @@ class Matcher:
                 names = [n for n in self.native.symbol_names.get(address,()) if n.startswith('__ZTV')]
                 if not names:
                     continue
-                if not any(name[5:] in method for name in names
+                if not any(owns_method(name, method) for name in names
                            for method in self.native.symbol_names.get(native,())):
                     continue
                 slots = vtable_slots(self.native,address)

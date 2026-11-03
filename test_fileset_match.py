@@ -54,6 +54,20 @@ class VtableMatchingTests(unittest.TestCase):
         self.assertEqual(matcher.pair_vtables({}), 0)
 
 
+    def test_class_in_parameter_does_not_identify_method_owner(self):
+        original = side(0x1000, [0x9000, 0x9010], [5, 6])
+        native = side(0x2000, [0xa000, 0xa010], [5, 6])
+        original.functions = {0x9020: {'refs': [(0, 0x1000)]}}
+        native.functions = {0xa020: {'refs': [(0, 0x2000)]}}
+        native.symbol_names[0xa020] = ['__ZN5Other4initEP7Example']
+        matcher = Matcher(original, native)
+        matcher.bind(0x9020, 0xa020, 'string')
+        self.assertEqual(matcher.pair_vtable_users({}), 0)
+        native.symbol_names[0xa020] = ['__ZN7Example4initEv']
+        known = {}
+        self.assertEqual(matcher.pair_vtable_users(known), 1)
+        self.assertEqual(known, {0x1000: (0x2000, 'vtable-user')})
+
 if __name__ == '__main__':
     unittest.main()
 

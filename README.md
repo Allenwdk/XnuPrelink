@@ -81,8 +81,14 @@ layout and lost these two order-based matches. Their original function digests,
 source consumers and accessor/copy semantics are recorded in the fixture.
 
 
-Uke integration retains the loader's exact root/member CPU-subtype check, a
-missing-reference-section guard for Linux-built comparison images, and reviewed
-bindings with original-function byte/hash evidence, including strprefix. The
-unmapped-call reporter's `from` is the PAC-stripped return address; resolve the
-preceding call and its authenticated thunk slot to identify an unresolved target.
+Uke uses the upstream matcher and reviewed fixture with an Apple-clang RELEASE/LTO
+comparison image supplied through the existing --fileset-reference interface.
+The comparison build must inherit XNU_KERNEL_CHAINED_FIXUPS=1 from the selected
+arm64e configuration. The native kernel remains Linux-built and keeps its PAC
+authentication-failure checks. The fork retains the loader's exact root/member
+CPU-subtype contract, a missing-section guard for Linux reference analysis,
+and the strict C++ owning-class check required by the workspace rules.
+Previous Uke v9 heuristics and supplemental function anchors are archived in
+the workspace control experiment, rather than applied to this pipeline.
+The unmapped-call reporter's from is the stripped return address; follow the
+preceding call and authenticated thunk slot to identify the missing target.
