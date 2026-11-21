@@ -5,6 +5,13 @@
   },
   "functions": [
     {
+      "original": "0xfffffe000b4a693c",
+      "original_size": 228,
+      "original_sha256": "c606aad39e560f0154a2964cde9490cf274c98dd73199c91f90f84271dca1e92",
+      "native_symbol": "__ZN24IOBufferMemoryDescriptor20inTaskWithGuardPagesEP4taskjy",
+      "evidence": "IOSlaveProcessor's authenticated GOT slot at 0xfffffe00083a7f88 points here. The three arguments are task, options and capacity. The body allocates through IOBufferMemoryDescriptor::gMetaClass, sets kInternalFlagGuardPages (0x20), checks page-rounding overflow, passes page_size and zero physical mask to initWithPhysicalMask and releases on failure. See IOBufferMemoryDescriptor.cpp inTaskWithGuardPages and initWithGuardPages. The native body rounds using its configured page size."
+    },
+    {
       "original": "0xfffffe000b3d41ec",
       "original_size": 32,
       "original_sha256": "e70e74087d15950f6d653a8c12e0f94d6e1f52df3029a5c79731e3d28426d67d",
